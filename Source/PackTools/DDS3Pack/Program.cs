@@ -131,7 +131,6 @@ namespace DDS3Pack
             Directory.CreateDirectory( outputPath );
 
             DDS3FileSystem fs = new DDS3FileSystem();
-            fs.Load( inputPath );
 
             try
             {

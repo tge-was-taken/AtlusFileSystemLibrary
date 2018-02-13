@@ -51,6 +51,7 @@
     <Compile Include="Common\IO\StringBinaryFormat.cs" />
     <Compile Include="Common\IO\Unsafe.cs" />
     <Compile Include="Common\PackTool\PackToolBase.cs" />
+    <Compile Include="Compressions\LBCompression.cs" />
     <Compile Include="FileExistsException.cs" />
     <Compile Include="FileSystemEntryInfo.cs" />
     <Compile Include="FileSystems\ACX\ACXFileSystem.cs" />
@@ -64,12 +65,18 @@
     <Compile Include="FileSystems\DDS3\FileEntry.cs" />
     <Compile Include="FileSystems\DDS3\MemoryFileEntry.cs" />
     <Compile Include="FileSystems\DDS3\StoredFileEntry.cs" />
+    <Compile Include="FileSystems\LB\Entry.cs" />
+    <Compile Include="FileSystems\LB\EntryInfo.cs" />
+    <Compile Include="FileSystems\LB\LBFileSystem.cs" />
+    <Compile Include="FileSystems\LB\MemoryEntry.cs" />
+    <Compile Include="FileSystems\LB\StoredEntry.cs" />
     <Compile Include="FileSystems\PAK\EntryInfo.cs" />
     <Compile Include="FileSystems\PAK\FormatVersion.cs" />
     <Compile Include="FileSystems\PAK\IEntry.cs" />
     <Compile Include="FileSystems\PAK\MemoryEntry.cs" />
     <Compile Include="FileSystems\PAK\PAKFileSystem.cs" />
     <Compile Include="FileSystems\PAK\StoredEntry.cs" />
+    <Compile Include="ICompression.cs" />
     <Compile Include="IFileSystem.cs" />
     <Compile Include="ConflictPolicy.cs" />
     <Compile Include="FileSystemEntryKind.cs" />
@@ -81,5 +88,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,29 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using AtlusFileSystemLibrary;
 using AtlusFileSystemLibrary.Common.IO;
 using AtlusFileSystemLibrary.Common.PackTool;
-using AtlusFileSystemLibrary.FileSystems.ACX;
+using AtlusFileSystemLibrary.FileSystems.LB;
 
-
-namespace ACXPack
+namespace LBPack
 {
     internal static class Program
     {
         private static void Main( string[] args )
         {
-            var tool = new ACXPackTool();
+            var tool = new LBPackTool();
             tool.ToolMain( args );
         }
     }
 
-    internal class ACXPackTool : PackToolBase
+    internal class LBPackTool : PackToolBase
     {
-        public override string Usage => "ACXPack 1.0 - An ACX pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "LBPack 1.0 - An LB pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
-                                        "  ACXPack <command>\n" +
+                                        "  LBPack <command>\n" +
                                         "\n" +
                                         "Commands:\n" +
                                         "\n" +
@@ -41,7 +43,7 @@ namespace ACXPack
                                         "            replace <input pak file path> <path to file directory> [output file path]\n" +
                                         "\n";
 
-        public override IReadOnlyDictionary< string, ICommand > Commands => new Dictionary< string, ICommand >()
+        public override IReadOnlyDictionary<string, ICommand> Commands => new Dictionary<string, ICommand>()
         {
             { "pack", new PackCommand() },
             { "unpack", new UnpackCommand() },
@@ -67,11 +69,11 @@ namespace ACXPack
                 return false;
             }
 
-            var outputPath = Path.ChangeExtension( inputPath, "acx" );
+            var outputPath = Path.ChangeExtension( inputPath, "LB" );
             if ( args.Length > 1 )
                 outputPath = args[1];
 
-            using ( var fs = new ACXFileSystem() )
+            using ( var fs = new LBFileSystem() )
             {
                 foreach ( string file in Directory.EnumerateFiles( inputPath, "*.*", SearchOption.AllDirectories ) )
                 {
@@ -110,7 +112,7 @@ namespace ACXPack
 
             Directory.CreateDirectory( outputPath );
 
-            var fs = new ACXFileSystem();
+            var fs = new LBFileSystem();
 
             try
             {
@@ -118,7 +120,7 @@ namespace ACXPack
             }
             catch ( Exception )
             {
-                Console.WriteLine( "Invalid acx file." );
+                Console.WriteLine( "Invalid LB file." );
                 return false;
             }
 
@@ -126,7 +128,9 @@ namespace ACXPack
             {
                 foreach ( int file in fs.EnumerateFiles( SearchOption.AllDirectories ) )
                 {
-                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file.ToString("D3") + ".adx" ) )
+                    var info = fs.GetInfo( file );
+
+                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file.ToString( "D2" ) + "." + info.Extension ) )
                     using ( var inputStream = fs.OpenFile( file ) )
                     {
                         Console.WriteLine( $"Extracting: {file}" );
@@ -156,7 +160,7 @@ namespace ACXPack
                 return false;
             }
 
-            var fs = new ACXFileSystem();
+            var fs = new LBFileSystem();
 
             try
             {
@@ -164,7 +168,7 @@ namespace ACXPack
             }
             catch ( Exception )
             {
-                Console.WriteLine( "Invalid acx file" );
+                Console.WriteLine( "Invalid LB file" );
                 return false;
             }
 
