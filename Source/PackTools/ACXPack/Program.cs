@@ -20,7 +20,7 @@ namespace ACXPack
 
     internal class ACXPackTool : PackToolBase
     {
-        public override string Usage => "ACXPack 1.0 - An ACX pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "ACXPack 1.1 - An ACX pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
                                         "  ACXPack <command>\n" +
