@@ -78,7 +78,28 @@ namespace LBPack
                 foreach ( string file in Directory.EnumerateFiles( inputPath, "*.*", SearchOption.AllDirectories ) )
                 {
                     Console.WriteLine( $"Adding file: {file}" );
-                    fs.AddFile( file );
+
+                    var name = Path.GetFileNameWithoutExtension( file );
+                    if ( name == null )
+                        continue;
+
+                    var nameParts = name.Split( new[] { '_' }, StringSplitOptions.RemoveEmptyEntries );
+
+                    if ( int.TryParse( nameParts[0], out var handle ) )
+                    {
+                        if ( nameParts.Length > 1 && short.TryParse( nameParts[1], out var userId ) )
+                        {
+                            fs.AddFile( handle, userId, file, ConflictPolicy.Replace );
+                        }
+                        else
+                        {
+                            fs.AddFile( handle, file, ConflictPolicy.Replace );
+                        }
+                    }
+                    else
+                    {
+                        fs.AddFile( file );
+                    }
                 }
 
                 Console.WriteLine( "Saving..." );
@@ -130,7 +151,7 @@ namespace LBPack
                 {
                     var info = fs.GetInfo( file );
 
-                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file.ToString( "D2" ) + "." + info.Extension ) )
+                    using ( var stream = FileUtils.Create( $"{outputPath}{Path.DirectorySeparatorChar}{file:D2}{'_'}{info.UserId:D2}.{info.Extension}" ) )
                     using ( var inputStream = fs.OpenFile( file ) )
                     {
                         Console.WriteLine( $"Extracting: {file}" );
@@ -190,10 +211,22 @@ namespace LBPack
                     foreach ( string file in Directory.EnumerateFiles( directoryPath, "*.*", SearchOption.AllDirectories ) )
                     {
                         Console.WriteLine( $"Adding/Replacing file: {file}" );
-                        var name = Path.GetFileName( file );
-                        if ( int.TryParse( name, out var handle ) )
+                        var name = Path.GetFileNameWithoutExtension( file );
+                        if ( name == null )
+                            continue;
+
+                        var nameParts = name.Split( new[] { '_' }, StringSplitOptions.RemoveEmptyEntries );
+
+                        if ( int.TryParse( nameParts[0], out var handle ) )
                         {
-                            fs.AddFile( handle, file, ConflictPolicy.Replace );
+                            if ( nameParts.Length > 1 && short.TryParse( nameParts[ 1 ], out var userId ) )
+                            {
+                                fs.AddFile( handle, userId, file, ConflictPolicy.Replace );
+                            }
+                            else
+                            {
+                                fs.AddFile( handle, file, ConflictPolicy.Replace );
+                            }
                         }
                         else
                         {
@@ -216,8 +249,9 @@ namespace LBPack
                 using ( fs )
                 {
                     var entryName = args[1];
+                    var entryNameParts = entryName.Split( new[] { '_' }, StringSplitOptions.RemoveEmptyEntries );
 
-                    if ( int.TryParse( entryName, out var handle ) )
+                    if ( int.TryParse( entryNameParts[0], out var handle ) )
                     {
                         if ( !fs.Exists( handle ) )
                         {

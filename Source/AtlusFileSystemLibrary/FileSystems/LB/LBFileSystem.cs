@@ -58,10 +58,18 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public void AddFile( int handle, Stream stream, bool ownsStream, ConflictPolicy policy )
         {
-            if (!(stream is FileStream fileStream))
-                throw new NotSupportedException( "Can't add files without filename information to this file system" );
+            AddFile( handle, 0, stream, ownsStream, policy );
+        }
 
-            if ( Exists( handle ) )
+        public void AddFile( int handle, short userId, string hostPath, ConflictPolicy policy )
+        {
+            AddFile( handle, userId, File.OpenRead( hostPath ), true, policy );
+        }
+
+        public void AddFile( int handle, short userId, Stream stream, bool ownsStream, ConflictPolicy policy )
+        {
+            bool replacing = false;
+            if ( mEntryMap.TryGetValue(handle, out var foundEntry))
             {
                 switch ( policy.Kind )
                 {
@@ -69,6 +77,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                         throw new FileExistsException<int>( handle );
                     case ConflictPolicy.PolicyKind.Replace:
                         // Handled later
+                        replacing = true;
                         break;
                     case ConflictPolicy.PolicyKind.Ignore:
                         return;
@@ -77,9 +86,27 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                 }
             }
 
-            var entry = new MemoryEntry( handle, fileStream, true, 1, 0, Path.GetExtension( fileStream.Name )
-                                                                                            .ToUpper()
-                                                                                            .TrimStart( '.' ) );
+            Entry entry;
+
+            if ( !replacing )
+            {
+                var fileStream = stream as FileStream ??
+                                 throw new NotSupportedException( "Can't add files without filename information to this file system" );
+
+                var extension = Path.GetExtension( fileStream.Name );
+                if ( extension == null )
+                    throw new NotSupportedException( "Can't add files without file extension information to this file system" );
+
+
+                entry = new MemoryEntry( handle, fileStream, true, 1, userId, extension
+                                             .ToUpper()
+                                             .TrimStart( '.' ) );
+
+            }
+            else
+            {
+                entry = new MemoryEntry( foundEntry.Handle, stream, ownsStream, foundEntry.Type, foundEntry.UserId, foundEntry.Extension );
+            }
 
             mEntryMap[entry.Handle] = entry;
         }
@@ -186,6 +213,20 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
             return entry.GetStream();
         }
 
+        public Stream OpenFile( string extension )
+        {
+            var entry = FindEntry( extension );
+
+            return entry.GetStream();
+        }
+
+        public int GetHandle( string extension )
+        {
+            var entry = FindEntry( extension );
+
+            return entry.Handle;
+        }
+
         public void Save( string outPath )
         {
             using ( var stream = FileUtils.Create( outPath ) )
@@ -203,8 +244,6 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
         {
             using ( var writer = new EndianBinaryWriter( stream, Encoding.Default, true, Endianness.LittleEndian ) )
             {
-                int alignmentBytes;
-
                 foreach ( var entry in mEntryMap.Values.OrderBy(x => x.Handle) )
                 {
                     writer.Write( entry.Type );
@@ -214,10 +253,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                     writer.Write( entry.Extension, StringBinaryFormat.FixedLength, 4 );
                     writer.Write( entry.DecompressedLength );
                     entry.GetStream( false ).CopyTo( writer.BaseStream );
-
-                    alignmentBytes = AlignmentUtils.GetAlignedDifference( writer.BaseStreamLength, 64 );
-                    for ( int i = 0; i < alignmentBytes; i++ )
-                        writer.Write( ( byte ) 0 );
+                    writer.WriteAlignmentPadding( 64 );
                 }
 
                 // Write 'end' entry
@@ -227,10 +263,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                 writer.Write( ( int ) 16 );
                 writer.Write( "END0", StringBinaryFormat.FixedLength, 4 );
                 writer.Write( ( int ) 0 );
-
-                alignmentBytes = AlignmentUtils.GetAlignedDifference( writer.BaseStreamLength, 64 );
-                for ( int i = 0; i < alignmentBytes; i++ )
-                    writer.Write( ( byte )0 );
+                writer.WriteAlignmentPadding( 64 );
             }
         }
 
@@ -247,6 +280,25 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
         {
             if ( !mEntryMap.TryGetValue( handle, out var entry ) )
                 throw new FileNotFoundException< int >( handle );
+
+            return entry;
+        }
+
+        private string NormalizeExtension( string extension )
+        {
+            extension = extension.TrimStart( '.' );
+            return extension.ToUpperInvariant();
+        }
+
+        private Entry FindEntry( string extension )
+        {
+            extension = NormalizeExtension( extension );
+
+            var entry = mEntryMap.Values.SingleOrDefault( x => x.Extension.Equals( extension ) );
+            if ( entry == null )
+            {
+                throw new FileNotFoundException( "No file with that extension could be found." );
+            }
 
             return entry;
         }

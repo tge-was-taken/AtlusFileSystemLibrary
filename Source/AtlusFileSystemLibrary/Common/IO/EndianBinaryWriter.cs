@@ -273,5 +273,19 @@ namespace AtlusFileSystemLibrary.Common.IO
                     throw new ArgumentException("Invalid format specified", nameof(format));
             }
         }
+
+        public void WritePadding( int count )
+        {
+            for ( int i = 0; i < count / 8; i++ )
+                Write( 0L );
+
+            for ( int i = 0; i < count % 8; i++ )
+                Write( ( byte ) 0 );
+        }
+
+        public void WriteAlignmentPadding( int alignment )
+        {
+            WritePadding( AlignmentUtils.GetAlignedDifference( Position, alignment ) );
+        }
     }
 }
