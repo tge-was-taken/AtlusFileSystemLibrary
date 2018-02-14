@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using AtlusFileSystemLibrary.Common.IO;
+using AtlusFileSystemLibrary.Compressions;
 
 namespace AtlusFileSystemLibrary.FileSystems.LB
 {
@@ -88,6 +88,9 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
             Entry entry;
 
+            var compression = new LBCompression();
+            var compressedStream = compression.Compress( stream );
+
             if ( !replacing )
             {
                 var fileStream = stream as FileStream ??
@@ -98,14 +101,15 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                     throw new NotSupportedException( "Can't add files without file extension information to this file system" );
 
 
-                entry = new MemoryEntry( handle, fileStream, true, 1, userId, extension
+                entry = new MemoryEntry( handle, compressedStream, true, 1, true, ( int ) stream.Length, userId, extension
                                              .ToUpper()
                                              .TrimStart( '.' ) );
 
             }
             else
             {
-                entry = new MemoryEntry( foundEntry.Handle, stream, ownsStream, foundEntry.Type, foundEntry.UserId, foundEntry.Extension );
+                entry = new MemoryEntry( foundEntry.Handle, compressedStream, true, foundEntry.Type, true, ( int ) stream.Length, foundEntry.UserId,
+                                         foundEntry.Extension );
             }
 
             mEntryMap[entry.Handle] = entry;

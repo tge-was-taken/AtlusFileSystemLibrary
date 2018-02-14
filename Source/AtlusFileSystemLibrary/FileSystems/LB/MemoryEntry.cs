@@ -1,14 +1,16 @@
 ﻿using System.IO;
+using AtlusFileSystemLibrary.Compressions;
 
 namespace AtlusFileSystemLibrary.FileSystems.LB
 {
     internal class MemoryEntry : Entry
     {
         private readonly Stream mStream;
+        private Stream mDecompressedStream;
         private readonly bool mOwnsStream;
 
-        public MemoryEntry( int handle, Stream stream, bool ownsStream, byte type, short userId, string extension )
-            : base( handle, type, false, userId, (int)stream.Length, extension, ( int )stream.Length )
+        public MemoryEntry( int handle, Stream stream, bool ownsStream, byte type, bool compressed, int decompressedLength, short userId, string extension )
+            : base( handle, type, compressed, userId, (int)stream.Length, extension, decompressedLength )
         {
             mStream = stream;
             mOwnsStream = ownsStream;
@@ -16,7 +18,20 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public override Stream GetStream( bool decompress = true )
         {
-            return mStream;
+            var stream = mStream;
+
+            if ( IsCompressed && decompress )
+            {
+                if ( mDecompressedStream == null )
+                {
+                    var compression = new LBCompression();
+                    mDecompressedStream = compression.Decompress( mStream );
+                }
+
+                stream = mDecompressedStream;
+            }
+
+            return stream;
         }
 
         public override void Dispose()
