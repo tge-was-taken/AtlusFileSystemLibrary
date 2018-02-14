@@ -86,10 +86,18 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                 }
             }
 
-            Entry entry;
 
-            var compression = new LBCompression();
-            var compressedStream = compression.Compress( stream );
+            bool compressed = false;
+
+            Entry entry;
+            var entryStream = stream;
+
+            if ( compressed )
+            {
+                var compression = new LBCompression();
+                entryStream = compression.Compress( stream );
+                ownsStream = true;
+            }
 
             if ( !replacing )
             {
@@ -101,14 +109,14 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                     throw new NotSupportedException( "Can't add files without file extension information to this file system" );
 
 
-                entry = new MemoryEntry( handle, compressedStream, true, 1, true, ( int ) stream.Length, userId, extension
+                entry = new MemoryEntry( handle, entryStream, ownsStream, 1, compressed, ( int ) stream.Length, userId, extension
                                              .ToUpper()
                                              .TrimStart( '.' ) );
 
             }
             else
             {
-                entry = new MemoryEntry( foundEntry.Handle, compressedStream, true, foundEntry.Type, true, ( int ) stream.Length, foundEntry.UserId,
+                entry = new MemoryEntry( foundEntry.Handle, entryStream, ownsStream, foundEntry.Type, compressed, ( int ) stream.Length, foundEntry.UserId,
                                          foundEntry.Extension );
             }
 
