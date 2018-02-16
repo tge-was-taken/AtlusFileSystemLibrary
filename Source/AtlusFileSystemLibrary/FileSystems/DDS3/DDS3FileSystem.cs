@@ -17,7 +17,7 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
 
         private DirectoryEntry mRoot;
 
-        private LinkedList< Tuple<long, Action> > mPostWrites;
+        private LinkedList< Tuple<long, Func<long>> > mPostWrites;
 
         // Properties
         public bool IsReadOnly => false;
@@ -250,10 +250,10 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             string ddtPath = Path.ChangeExtension( outPath, "ddt" );
             string imgPath = Path.ChangeExtension( outPath, "img" );
 
-            using ( var ddtWriter = new BinaryWriter( FileUtils.Create( ddtPath ) ) )
-            using ( var imgWriter = new BinaryWriter( FileUtils.Create( imgPath ) ) )
+            using ( var ddtWriter = new EndianBinaryWriter( FileUtils.Create( ddtPath ), Endianness.LittleEndian ) )
+            using ( var imgWriter = new EndianBinaryWriter( FileUtils.Create( imgPath ), Endianness.LittleEndian ) )
             {
-                mPostWrites = new LinkedList< Tuple< long, Action > >();
+                mPostWrites = new LinkedList< Tuple< long, Func< long > > >();
                 WriteEntry( mRoot, ddtWriter, imgWriter );
                 DoPostWrites( ddtWriter );
             }
@@ -326,8 +326,10 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             return entry;
         }
 
-        private void WriteEntry( Entry entry, BinaryWriter ddtWriter, BinaryWriter imgWriter )
+        private void WriteEntry( Entry entry, EndianBinaryWriter ddtWriter, EndianBinaryWriter imgWriter )
         {
+            ddtWriter.WriteAlignmentPadding( 4 );
+
             // name offset
             if ( !string.IsNullOrWhiteSpace(entry.Name) )
             {
@@ -347,13 +349,10 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             // offset
             if ( entry.Kind == FileSystemEntryKind.Directory )
             {
-                WriteOffset( ddtWriter, () =>
+                WriteOffsetAligned( ddtWriter, 4, () =>
                 {
-                    foreach ( var childEntry in ( ( DirectoryEntry )entry ).Entries.Values
-                    .OrderBy( x => x.Name, StringComparer.Instance ) )
-                    {
+                    foreach ( var childEntry in ( ( DirectoryEntry )entry ).Entries.Values.OrderBy( x => x.Name, StringComparer.Instance ) )
                         WriteEntry( childEntry, ddtWriter, imgWriter );
-                    }
                 } );
             }
             else
@@ -369,41 +368,61 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             if ( entry.Kind == FileSystemEntryKind.File )
             {
                 ( ( FileEntry ) entry ).GetStream().CopyTo( imgWriter.BaseStream );
-
-                var alignmentByteCount = AlignmentUtils.GetAlignedDifference( imgWriter.BaseStream.Position, SECTOR_SIZE );
-                for ( int i = 0; i < alignmentByteCount; i++ )
-                    imgWriter.Write( ( byte ) 0 );
+                imgWriter.WriteAlignmentPadding( SECTOR_SIZE );
             }
         }
 
-        private void WriteOffset( BinaryWriter writer, Action action )
+        private void WriteOffset( EndianBinaryWriter writer, Action action )
         {
-            mPostWrites.AddLast( new Tuple<long, Action>(writer.BaseStream.Position, action) );
+            WriteOffset( writer, () =>
+            {
+                long offset = writer.BaseStream.Position;
+                action();
+                return offset;
+            } );
+        }
+
+        private void WriteOffsetAligned( EndianBinaryWriter writer, int alignment, Action action )
+        {
+            WriteOffset( writer, () =>
+            {
+                writer.WriteAlignmentPadding( alignment );
+                long offset = writer.BaseStream.Position;
+                action();
+                return offset;
+            } );
+        }
+
+        private void WriteOffset( EndianBinaryWriter writer, Func<long> action )
+        {
+            mPostWrites.AddLast( new Tuple<long, Func<long>>(writer.BaseStream.Position, action) );
             writer.Write( ( int ) 0 );
         }
 
-        private void DoPostWrites( BinaryWriter ddtWriter )
+        private void DoPostWrites( EndianBinaryWriter ddtWriter )
         {
             var current = mPostWrites.First;
             while ( current != null )
             {
-                var postWrite = current.Value;
-                long offsetOffset = postWrite.Item1;
-                long offset = ddtWriter.BaseStream.Position;
-
-                // Do actual write
-                postWrite.Item2();
-
-                // Write offset
-                long returnPos = ddtWriter.BaseStream.Position;
-                ddtWriter.BaseStream.Seek( offsetOffset, SeekOrigin.Begin );
-                ddtWriter.Write( ( int )offset );
-
-                // Seek back for next one
-                ddtWriter.BaseStream.Seek( returnPos, SeekOrigin.Begin );
-
+                DoPostWrite( current.Value, ddtWriter );
                 current = current.Next;
             }
+        }
+
+        private void DoPostWrite( Tuple< long, Func<long> > postWrite, EndianBinaryWriter writer )
+        {
+            long offsetOffset = postWrite.Item1;
+
+            // Do actual write
+            long offset = postWrite.Item2();
+
+            // Write offset
+            long returnPos = writer.BaseStream.Position;
+            writer.BaseStream.Seek( offsetOffset, SeekOrigin.Begin );
+            writer.Write( ( int )offset );
+
+            // Seek back for next one
+            writer.BaseStream.Seek( returnPos, SeekOrigin.Begin );
         }
 
         // Lookup

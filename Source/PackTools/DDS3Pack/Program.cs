@@ -20,7 +20,7 @@ namespace DDS3Pack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "DDS3Pack 1.1 - A DDS3 img/ddt pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "DDS3Pack 1.2 - A DDS3 img/ddt pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  DDS3Pack <command>\n" +
@@ -136,7 +136,7 @@ namespace DDS3Pack
             {
                 fs.Load( inputPath );
             }
-            catch ( Exception )
+            catch ( Exception e )
             {
                 Console.WriteLine( "Invalid ddt/img file." );
                 return false;
@@ -182,7 +182,7 @@ namespace DDS3Pack
             {
                 fs.Load( inputPath );
             }
-            catch ( Exception )
+            catch ( Exception e )
             {
                 Console.WriteLine( "Invalid ddt/img file" );
                 return false;
