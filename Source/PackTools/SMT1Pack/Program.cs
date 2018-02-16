@@ -4,44 +4,46 @@ using System.IO;
 using AtlusFileSystemLibrary;
 using AtlusFileSystemLibrary.Common.IO;
 using AtlusFileSystemLibrary.Common.PackTool;
-using AtlusFileSystemLibrary.FileSystems.ACX;
+using AtlusFileSystemLibrary.FileSystems.SMT1;
 
-
-namespace ACXPack
+namespace SMT1Pack
 {
     internal static class Program
     {
         private static void Main( string[] args )
         {
-            var tool = new ACXPackTool();
+            var tool = new SMT1PackTool();
             tool.ToolMain( args );
         }
     }
 
-    internal class ACXPackTool : PackToolBase
+    internal class SMT1PackTool : PackToolBase
     {
-        public override string Usage => "ACXPack 1.1 - An ACX pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "SMT1Pack 1.0 - An SMT1 DATA.BIN pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
-                                        "  ACXPack <command>\n" +
+                                        "  SMT1Pack <command>\n" +
                                         "\n" +
                                         "Commands:\n" +
                                         "\n" +
-                                        "    pack        Packs the given input into an ACX file and outputs it to the specified output path.\n" +
-                                        "        Usage:\n" +
-                                        "            pack <input directory path> [output file path]\n" +
+                                        "    pack       Packs the given input into a DATA.BIN file and outputs it to the specified output path.\n" +
+                                        "               Note: If present, the executable will be updated accordingly.\n" +
+                                        "       Usage:\n" +
+                                        "           pack <input directory path> [output file path]\n" +
                                         "\n" +
-                                        "    unpack      Unpacks the given input ACX file and outputs it to the specified output directory.\n" +
-                                        "        Usage:\n" +
-                                        "            unpack <input file path> [output directory path]\n" +
+                                        "    unpack     Unpacks the given input DATA.BIN file and outputs it to the specified output directory.\n" +
+                                        "               Note: This requires the executable file to be in the same directory as the DATA.BIN file.\n" +
+                                        "       Usage:\n" +
+                                        "           unpack <input file path> [output directory path]\n" +
                                         "\n" +
-                                        "    replace     Replaces the specified file(s) with the contents of the specified input\n" +
-                                        "        Usage:\n" +
-                                        "            replace <input pak file path> <file name to replace> <file path> [output file path]\n" +
-                                        "            replace <input pak file path> <path to file directory> [output file path]\n" +
+                                        "    replace    Replaces the specified file(s) with the contents of the specified input\n" +
+                                        "               Note: This requires the executable file to be in the same directory as the DATA.BIN file.\n" +
+                                        "       Usage:\n" +
+                                        "           replace <input pak file path> <file name to replace> <file path> [output file path]\n" +
+                                        "           replace <input pak file path> <path to file directory> [output file path]\n" +
                                         "\n";
 
-        public override IReadOnlyDictionary< string, ICommand > Commands => new Dictionary< string, ICommand >()
+        public override IReadOnlyDictionary<string, ICommand> Commands => new Dictionary<string, ICommand>()
         {
             { "pack", new PackCommand() },
             { "unpack", new UnpackCommand() },
@@ -67,16 +69,23 @@ namespace ACXPack
                 return false;
             }
 
-            var outputPath = Path.ChangeExtension( inputPath, "acx" );
+            var outputPath = Path.ChangeExtension( inputPath, "BIN" );
             if ( args.Length > 1 )
                 outputPath = args[1];
 
-            using ( var fs = new ACXFileSystem() )
+            using ( var fs = new SMT1FileSystem() )
             {
                 foreach ( string file in Directory.EnumerateFiles( inputPath, "*.*", SearchOption.AllDirectories ) )
                 {
+                    var name = Path.GetFileNameWithoutExtension( file );
+                    if ( !int.TryParse( name, out var handle ) )
+                    {
+                        Console.WriteLine( $"Skipping file: {file}; file name not a valid index" );
+                        continue;
+                    }
+
                     Console.WriteLine( $"Adding file: {file}" );
-                    fs.AddFile( file );
+                    fs.AddFile( handle, file, ConflictPolicy.Replace );
                 }
 
                 Console.WriteLine( "Saving..." );
@@ -110,7 +119,7 @@ namespace ACXPack
 
             Directory.CreateDirectory( outputPath );
 
-            var fs = new ACXFileSystem();
+            var fs = new SMT1FileSystem();
 
             try
             {
@@ -118,7 +127,7 @@ namespace ACXPack
             }
             catch ( Exception )
             {
-                Console.WriteLine( "Invalid acx file." );
+                Console.WriteLine( "Couldn't load DATA.BIN. Did you make sure to put the game executable in the same directory?" );
                 return false;
             }
 
@@ -126,10 +135,27 @@ namespace ACXPack
             {
                 foreach ( int file in fs.EnumerateFiles( SearchOption.AllDirectories ) )
                 {
-                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file.ToString("D3") + ".adx" ) )
+                    var info = fs.GetInfo( file );
+                    var extension = ".bin";
+                    if ( info.ContentKind == ContentKind.TIM )
+                    {
+                        extension = ".tim";
+                    }
+                    else if ( info.ContentKind == ContentKind.TIMH )
+                    {
+                        extension = ".timh";
+                    }
+                    else if ( info.ContentKind == ContentKind.SC02 )
+                    {
+                        extension = ".sc02";
+                    }
+
+                    var name = file.ToString( "D4" ) + extension;
+
+                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + name ) )
                     using ( var inputStream = fs.OpenFile( file ) )
                     {
-                        Console.WriteLine( $"Extracting: {file}" );
+                        Console.WriteLine( $"Extracting: {name}" );
                         inputStream.CopyTo( stream );
                     }
                 }
@@ -156,7 +182,7 @@ namespace ACXPack
                 return false;
             }
 
-            var fs = new ACXFileSystem();
+            var fs = new SMT1FileSystem();
 
             try
             {
@@ -164,7 +190,7 @@ namespace ACXPack
             }
             catch ( Exception )
             {
-                Console.WriteLine( "Invalid acx file" );
+                Console.WriteLine( "Couldn't load DATA.BIN. Did you make sure to put the game executable in the same directory?" );
                 return false;
             }
 
@@ -185,15 +211,16 @@ namespace ACXPack
                 {
                     foreach ( string file in Directory.EnumerateFiles( directoryPath, "*.*", SearchOption.AllDirectories ) )
                     {
-                        Console.WriteLine( $"Adding/Replacing file: {file}" );
                         var name = Path.GetFileName( file );
+
                         if ( int.TryParse( name, out var handle ) )
                         {
+                            Console.WriteLine( $"Replacing file: {file}" );
                             fs.AddFile( handle, file, ConflictPolicy.Replace );
                         }
                         else
                         {
-                            fs.AddFile( file );
+                            Console.WriteLine( $"Skipping file: {file}; name does not contain a valid index" );
                         }
                     }
 
@@ -221,7 +248,7 @@ namespace ACXPack
                             return false;
                         }
 
-                        var filePath = args[2];
+                        var filePath = args[ 2 ];
                         if ( !File.Exists( filePath ) )
                         {
                             Console.WriteLine( "Specified replacement file doesn't exist." );
@@ -233,6 +260,11 @@ namespace ACXPack
 
                         Console.WriteLine( "Saving..." );
                         fs.Save( outputPath );
+                    }
+                    else
+                    {
+                        Console.WriteLine( "Specified entry doesn't exist." );
+                        return false;
                     }
                 }
             }

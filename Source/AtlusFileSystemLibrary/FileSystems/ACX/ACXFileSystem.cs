@@ -18,6 +18,7 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
         public bool IsReadOnly { get; } = false;
         public bool HasDirectories { get; } = false;
         public bool CanSave { get; } = true;
+        public bool CanAddOrRemoveEntries { get; } = true;
 
         public int AllocateHandle() => mNextHandle++;
 

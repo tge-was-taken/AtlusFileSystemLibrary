@@ -20,11 +20,13 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
         private LinkedList< Tuple<long, Func<long>> > mPostWrites;
 
         // Properties
-        public bool IsReadOnly => false;
+        public bool IsReadOnly { get; } = false;
 
-        public bool HasDirectories => true;
+        public bool HasDirectories { get; } = true;
 
-        public bool CanSave => true;
+        public bool CanSave { get; } = true;
+
+        public bool CanAddOrRemoveEntries { get; } = true;
 
         public DDS3FileSystem()
         {

@@ -21,6 +21,8 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public bool CanSave => true;
 
+        public bool CanAddOrRemoveEntries { get; } = true;
+
         public LBFileSystem()
         {
             mEntryMap = new Dictionary< int, Entry >();

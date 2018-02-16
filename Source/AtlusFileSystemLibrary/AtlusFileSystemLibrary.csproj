@@ -76,6 +76,13 @@
     <Compile Include="FileSystems\PAK\MemoryEntry.cs" />
     <Compile Include="FileSystems\PAK\PAKFileSystem.cs" />
     <Compile Include="FileSystems\PAK\StoredEntry.cs" />
+    <Compile Include="FileSystems\SMT1\ContentKind.cs" />
+    <Compile Include="FileSystems\SMT1\ContentKindDetector.cs" />
+    <Compile Include="FileSystems\SMT1\EntryInfo.cs" />
+    <Compile Include="FileSystems\SMT1\IEntry.cs" />
+    <Compile Include="FileSystems\SMT1\MemoryEntry.cs" />
+    <Compile Include="FileSystems\SMT1\SMT1FileSystem.cs" />
+    <Compile Include="FileSystems\SMT1\StoredEntry.cs" />
     <Compile Include="ICompression.cs" />
     <Compile Include="IFileSystem.cs" />
     <Compile Include="ConflictPolicy.cs" />

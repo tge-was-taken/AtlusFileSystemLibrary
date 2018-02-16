@@ -10,6 +10,7 @@ namespace AtlusFileSystemLibrary
         bool IsReadOnly { get; }
         bool HasDirectories { get; }
         bool CanSave { get; }
+        bool CanAddOrRemoveEntries { get; }
 
         // Load/Save
         void Load( string path );

@@ -168,6 +168,8 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
         public bool CanSave { get; } = true;
 
+        public bool CanAddOrRemoveEntries { get; } = true;
+
         public FormatVersion Version { get; private set; }
 
         public PAKFileSystem()
