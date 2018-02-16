@@ -111,12 +111,15 @@ namespace PAKPack
             {
                 foreach ( string file in Directory.EnumerateFiles( inputPath, "*.*", SearchOption.AllDirectories ) )
                 {
+                    Console.WriteLine( $"Adding {file}" );
+
                     pak.AddFile( file.Substring( inputPath.Length )
                                      .Trim( Path.DirectorySeparatorChar )
                                      .Replace( "\\", "/" ),
                                  file, ConflictPolicy.Ignore );
                 }
 
+                Console.WriteLine( $"Saving..." );
                 pak.Save( outputPath );
             }
 
@@ -155,13 +158,14 @@ namespace PAKPack
 
             using ( pak )
             {
-                Console.WriteLine( $"PAK format version: {Program.NameToFormat[pak.Version]}." );
+                Console.WriteLine( $"PAK format version: {Program.NameToFormat[pak.Version]}" );
 
                 foreach ( string file in pak.EnumerateFiles() )
                 {
                     using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file ) )
                     using ( var inputStream = pak.OpenFile( file ) )
                     {
+                        Console.WriteLine( $"Extracting {file}" );
                         inputStream.CopyTo( stream );
                     }
                 }
@@ -211,12 +215,14 @@ namespace PAKPack
                 {
                     foreach ( string file in Directory.EnumerateFiles( directoryPath, "*.*", SearchOption.AllDirectories ) )
                     {
+                        Console.WriteLine( $"Adding/Replacing {file}" );
                         pak.AddFile( file.Substring( directoryPath.Length )
                                          .Trim( Path.DirectorySeparatorChar )
                                          .Replace( "\\", "/" ),
                                      file, ConflictPolicy.Replace );
                     }
 
+                    Console.WriteLine( "Saving..." );
                     pak.Save( outputPath );
                 }
             }
@@ -245,8 +251,10 @@ namespace PAKPack
                         return false;
                     }
 
+                    Console.WriteLine( $"Adding/Replacing {entryName}" );
                     pak.AddFile( entryName, filePath, ConflictPolicy.Replace );
 
+                    Console.WriteLine( "Saving..." );
                     pak.Save( outputPath );
                 }
             }

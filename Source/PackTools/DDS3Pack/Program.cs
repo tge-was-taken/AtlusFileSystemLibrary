@@ -94,7 +94,7 @@ namespace DDS3Pack
                                        .Trim( Path.DirectorySeparatorChar )
                                        .Replace( "\\", "/" );
 
-                    Console.WriteLine( $"Adding/Replacing file: {filePath}" );
+                    Console.WriteLine( $"Adding file: {filePath}" );
 
                     fs.AddFile( filePath, file, ConflictPolicy.ThrowError );
                 }

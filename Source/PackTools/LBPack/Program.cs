@@ -77,8 +77,6 @@ namespace LBPack
             {
                 foreach ( string file in Directory.EnumerateFiles( inputPath, "*.*", SearchOption.AllDirectories ) )
                 {
-                    Console.WriteLine( $"Adding file: {file}" );
-
                     var name = Path.GetFileNameWithoutExtension( file );
                     if ( name == null )
                         continue;
@@ -89,15 +87,18 @@ namespace LBPack
                     {
                         if ( nameParts.Length > 1 && short.TryParse( nameParts[1], out var userId ) )
                         {
+                            Console.WriteLine( $"Adding file: {file} as: {handle}:{userId}" );
                             fs.AddFile( handle, userId, file, ConflictPolicy.Replace );
                         }
                         else
                         {
+                            Console.WriteLine( $"Adding file: {file} as: {handle}:0" );
                             fs.AddFile( handle, file, ConflictPolicy.Replace );
                         }
                     }
                     else
                     {
+                        Console.WriteLine( $"Adding file: {file}" );
                         fs.AddFile( file );
                     }
                 }
