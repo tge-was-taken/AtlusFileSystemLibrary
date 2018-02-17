@@ -137,17 +137,21 @@ namespace SMT1Pack
                 {
                     var info = fs.GetInfo( file );
                     var extension = ".bin";
-                    if ( info.ContentKind == ContentKind.TIM )
+
+                    switch ( info.ContentKind )
                     {
-                        extension = ".tim";
-                    }
-                    else if ( info.ContentKind == ContentKind.TIMH )
-                    {
-                        extension = ".timh";
-                    }
-                    else if ( info.ContentKind == ContentKind.SC02 )
-                    {
-                        extension = ".sc02";
+                        case ContentKind.TIM:
+                            extension = ".tim";
+                            break;
+                        case ContentKind.TIMH:
+                            extension = ".timh";
+                            break;
+                        case ContentKind.SC02:
+                            extension = ".sc02";
+                            break;
+                        case ContentKind.Archive:
+                            extension = ".arc";
+                            break;
                     }
 
                     var name = file.ToString( "D4" ) + extension;

@@ -5,6 +5,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
         Unknown,
         TIM,
         TIMH,
-        SC02
+        SC02,
+        Archive,
     }
 }

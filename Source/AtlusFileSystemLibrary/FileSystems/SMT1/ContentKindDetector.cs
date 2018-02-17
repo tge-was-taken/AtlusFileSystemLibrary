@@ -1,51 +1,66 @@
 ﻿using System.IO;
+using System.Text;
 using System.Linq;
+using AtlusFileSystemLibrary.Common.IO;
+using AtlusFileSystemLibrary.Common.Utilities;
 
 namespace AtlusFileSystemLibrary.FileSystems.SMT1
 {
     internal static class ContentKindDetector
     {
-        private static readonly byte[] sTimSignature = { 0x10, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00 };
-        private static readonly byte[] sTIMHSignature = { 0x08, 0x00, 0x00, 0x00, 0x80, 0x13, 0x00, 0x00 };
-        private static readonly byte[] sSc02Signature = { (byte)'S', (byte)'C', (byte)'0', (byte)'2', 0x18, 0x00, 0x00, 0x00 };
-
-        private static readonly ContentSignature[] sSignatures =
+        private static readonly (ContentKind, string)[] sSignatures =
         {
-            new ContentSignature( ContentKind.TIM, sTimSignature ),
-            new ContentSignature( ContentKind.TIMH, sTIMHSignature ),
-            new ContentSignature( ContentKind.SC02, sSc02Signature )
+            ( ContentKind.TIM, "10 00 00 00 08 00 00 00" ), // 4BPP
+            ( ContentKind.TIM, "10 00 00 00 09 00 00 00" ), // 8BPP
+            ( ContentKind.TIM, "10 00 00 00 02 00 00 00" ), // 16BPP
+            ( ContentKind.TIM, "10 00 00 00 03 00 00 00" ), // 24BPP
+            ( ContentKind.TIMH, "08 00 00 00 80 13 00 00" ),
+            ( ContentKind.SC02, "53 43 30 32" ),
         };
 
         public static ContentKind Detect( Stream stream )
         {
             var kind = ContentKind.Unknown;
 
-            var bytes = new byte[8];
-            stream.Read( bytes, 0, 8 );
-
             foreach ( var signature in sSignatures )
             {
-                if ( bytes.SequenceEqual( signature.Signature ) )
+                if ( SignatureScanner.Matches( stream, signature.Item2 ) )
                 {
-                    kind = signature.Kind;
+                    kind = signature.Item1;
                     break;
                 }
             }
 
-            stream.Position = 0;
-            return kind;
-        }
-
-        private struct ContentSignature
-        {
-            public ContentKind Kind { get; }
-            public byte[] Signature { get; }
-
-            public ContentSignature( ContentKind kind, byte[] sig )
+            if ( kind == ContentKind.Unknown )
             {
-                Kind = kind;
-                Signature = sig;
+                // Maybe its an archive
+                using ( var reader = new EndianBinaryReader( stream, Encoding.Default, true, Endianness.LittleEndian ) )
+                {
+                    var count = reader.ReadUInt32();
+                    var baseOffset = reader.ReadInt32();
+
+                    if ( ( baseOffset - 0x8 ) == ( count * 4 ) )
+                    {
+                        var offsets = reader.ReadInt32s( ( int )count );
+                        var isArchive = true;
+                        for ( int i = 1; i < offsets.Length; i++ )
+                        {
+                            if ( offsets[ i - 1 ] > offsets[ i ] )
+                            {
+                                isArchive = false;
+                                break;
+                            }        
+                        }
+
+                        if ( isArchive )
+                            kind = ContentKind.Archive;
+                    }
+                }
             }
+
+            stream.Position = 0;
+
+            return kind;
         }
     }
 }

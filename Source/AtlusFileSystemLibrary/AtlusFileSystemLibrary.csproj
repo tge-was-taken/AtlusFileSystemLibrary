@@ -51,6 +51,7 @@
     <Compile Include="Common\IO\StringBinaryFormat.cs" />
     <Compile Include="Common\IO\Unsafe.cs" />
     <Compile Include="Common\PackTool\PackToolBase.cs" />
+    <Compile Include="Common\Utilities\SignatureScanner.cs" />
     <Compile Include="Compressions\LBCompression.cs" />
     <Compile Include="FileExistsException.cs" />
     <Compile Include="FileSystemEntryInfo.cs" />
