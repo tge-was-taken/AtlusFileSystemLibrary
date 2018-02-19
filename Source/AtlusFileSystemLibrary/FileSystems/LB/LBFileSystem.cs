@@ -221,10 +221,10 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
             }
         }
 
-        public Stream OpenFile( int handle )
+        public FileStream<int> OpenFile( int handle )
         {
             var entry = FindEntry( handle );
-            return entry.GetStream();
+            return new FileStream< int >( handle, entry.GetStream() );
         }
 
         public Stream OpenFile( string extension )

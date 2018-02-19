@@ -182,7 +182,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
             throw new NotSupportedException( "This filesystem does not support being loaded from a stream" );
         }
 
-        public Stream OpenFile( int handle )
+        public FileStream<int> OpenFile( int handle )
         {
             if ( !Exists( handle ) )
                 throw new FileNotFoundException< int >( handle );
@@ -191,7 +191,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
             if ( entry == null )
                 throw new FileNotFoundException< int >( handle );
 
-            return entry.GetStream();
+            return new FileStream< int >( handle, entry.GetStream() );
         }
 
         public void Save( string outPath )

@@ -201,9 +201,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
         {
             mBaseStream = stream;
             mOwnsStream = ownsStream;
-
-            if ( Version == FormatVersion.Unknown )
-                Version = DetectVersion( mBaseStream );
+            Version = DetectVersion( mBaseStream );
 
             ReadEntries();
         }
@@ -264,7 +262,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                         mEntryMap[entry.FileName] = entry;
                     }
                 }
-                else if ( Version == FormatVersion.Version2 || Version == FormatVersion.Version3 )
+                else if ( Version == FormatVersion.Version2 || Version == FormatVersion.Version2BE || Version == FormatVersion.Version3 || Version == FormatVersion.Version3BE )
                 {
                     int entryCount = reader.ReadInt32();
                     int nameLength = 32;
@@ -332,10 +330,10 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
             return entry;
         }
 
-        public Stream OpenFile( string handle )
+        public FileStream<string> OpenFile( string handle )
         {
             var entry = FindEntry( handle );
-            return entry.GetStream();
+            return new FileStream< string >( handle, entry.GetStream() );
         }
 
         public bool Exists( string handle )
@@ -438,7 +436,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
         {
             using ( var writer = new EndianBinaryWriter( stream, Encoding.Default, true, IsBigEndian ? Endianness.BigEndian : Endianness.LittleEndian ) )
             {
-                if ( Version == FormatVersion.Version2 || Version == FormatVersion.Version3 )
+                if ( Version == FormatVersion.Version2 || Version == FormatVersion.Version2BE || Version == FormatVersion.Version3 || Version == FormatVersion.Version3BE )
                     writer.Write( mEntryMap.Count );
 
                 int nameLength;
@@ -448,9 +446,11 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                         nameLength = 252;
                         break;
                     case FormatVersion.Version2:
+                    case FormatVersion.Version2BE:
                         nameLength = 32;
                         break;
                     case FormatVersion.Version3:
+                    case FormatVersion.Version3BE:
                         nameLength = 24;
                         break;
                     default:
@@ -486,7 +486,9 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                             }
                             break;
                         case FormatVersion.Version2:
+                        case FormatVersion.Version2BE:
                         case FormatVersion.Version3:
+                        case FormatVersion.Version3BE:
                             break;
                         default:
                             throw new NotImplementedException( "Invalid format version" );

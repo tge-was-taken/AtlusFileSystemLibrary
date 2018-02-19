@@ -46,6 +46,7 @@
     <Compile Include="Common\IO\EndianBinaryReader.cs" />
     <Compile Include="Common\IO\EndianBinaryWriter.cs" />
     <Compile Include="Common\IO\EndiannessUtils.cs" />
+    <Compile Include="Common\IO\FileStream.cs" />
     <Compile Include="Common\IO\FileUtils.cs" />
     <Compile Include="Common\IO\StreamView.cs" />
     <Compile Include="Common\IO\StringBinaryFormat.cs" />

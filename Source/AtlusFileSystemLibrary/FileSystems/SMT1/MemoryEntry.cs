@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using AtlusFileSystemLibrary.Common.IO;
 
 namespace AtlusFileSystemLibrary.FileSystems.SMT1
 {

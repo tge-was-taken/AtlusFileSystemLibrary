@@ -47,14 +47,14 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
             }
         }
 
-        public Stream OpenFile( int handle )
+        public FileStream<int> OpenFile( int handle )
         {
             if ( !mEntryMap.TryGetValue( handle, out var entry ) )
             {
                 throw new FileNotFoundException<int>( handle );
             }
 
-            return entry.GetStream();
+            return new FileStream< int >( handle, entry.GetStream() );
         }
 
         public bool Exists( int handle )

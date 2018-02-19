@@ -237,14 +237,14 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             return TryFindDirectory( handle, out _ );
         }
 
-        public Stream OpenFile( string handle )
+        public FileStream<string> OpenFile( string handle )
         {
             if ( !TryFindFile( handle, out var file ) )
             {
                 throw new FileNotFoundException( "The specified file does not exist", handle );
             }
 
-            return file.GetStream();
+            return new FileStream< string >( handle, file.GetStream() );
         }
 
         public void Save( string outPath )

@@ -20,14 +20,18 @@ namespace PAKPack
         {
             { "v1", FormatVersion.Version1 },
             { "v2", FormatVersion.Version2 },
-            { "v3", FormatVersion.Version3 }
+            { "v2be", FormatVersion.Version2BE },
+            { "v3", FormatVersion.Version3 },
+            { "v3be", FormatVersion.Version3BE }
         };
 
         public static IReadOnlyDictionary<FormatVersion, string> NameToFormat { get; } = new Dictionary<FormatVersion, string>
         {
             { FormatVersion.Version1, "v1"},
             { FormatVersion.Version2, "v2" },
-            { FormatVersion.Version3, "v3" }
+            { FormatVersion.Version2BE, "v2be" },
+            { FormatVersion.Version3, "v3" },
+            { FormatVersion.Version3BE, "v3be" }
         };
 
         private static void Main( string[] args )

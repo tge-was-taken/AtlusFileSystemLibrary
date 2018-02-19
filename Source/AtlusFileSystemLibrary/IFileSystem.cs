@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using AtlusFileSystemLibrary.Common.IO;
 
 namespace AtlusFileSystemLibrary
 {
@@ -21,7 +22,7 @@ namespace AtlusFileSystemLibrary
 
         void Save( Stream stream );
 
-        Stream OpenFile( THandle handle );
+        FileStream<THandle> OpenFile( THandle handle );
 
         // Stats
         bool Exists( THandle handle );
