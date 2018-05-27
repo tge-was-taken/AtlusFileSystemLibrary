@@ -13,7 +13,8 @@ namespace PAKPack
         {
             { "pack", new PackCommand() },
             { "unpack", new UnpackCommand() },
-            { "replace", new ReplaceCommand() }
+            { "replace", new ReplaceCommand() },
+            { "add", new AddCommand() }
         };
 
         public static IReadOnlyDictionary< string, FormatVersion > FormatsByName { get; } = new Dictionary< string, FormatVersion >
@@ -38,7 +39,7 @@ namespace PAKPack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "PAKPack 1.0 - A PAK pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "PAKPack 1.1 - A PAK pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  PAKPack <command>\n" +
@@ -57,6 +58,11 @@ namespace PAKPack
                                    "        Usage:\n" +
                                    "            replace <input pak file path> <file name to replace> <file path> [output file path]\n" +
                                    "            replace <input pak file path> <path to file directory> [output file path]\n" +
+                                   "\n" +
+                                   "    add         Adds or replaces the specified file(s) with the contents of the specified input\n" +
+                                   "        Usage:\n" +
+                                   "            add <input pak file path> <file name to add/replace> <file path> [output file path]\n" +
+                                   "            add <input pak file path> <path to file directory> [output file path]\n" +
                                    "\n" );
                 return;
             }
@@ -179,9 +185,9 @@ namespace PAKPack
         }
     }
 
-    internal class ReplaceCommand : ICommand
+    internal abstract class AddOrReplaceCommand : ICommand
     {
-        public bool Execute( string[] args )
+        protected static bool Execute( string[] args, bool allowAdd )
         {
             if ( args.Length < 3 )
             {
@@ -205,9 +211,9 @@ namespace PAKPack
             string outputPath = Path.GetRandomFileName();
             bool replaceInput = true;
 
-            if ( Directory.Exists( args[ 2 ] ) )
+            if ( Directory.Exists( args[2] ) )
             {
-                var directoryPath = args[ 2 ];
+                var directoryPath = args[2];
 
                 if ( args.Length > 3 )
                 {
@@ -241,8 +247,9 @@ namespace PAKPack
                 using ( pak )
                 {
                     var entryName = args[2];
+                    var entryExists = pak.Exists( entryName );
 
-                    if ( !pak.Exists( entryName ) )
+                    if ( !allowAdd && !entryExists )
                     {
                         Console.WriteLine( "Specified entry doesn't exist." );
                         return false;
@@ -255,7 +262,7 @@ namespace PAKPack
                         return false;
                     }
 
-                    Console.WriteLine( $"Adding/Replacing {entryName}" );
+                    Console.WriteLine( $"{( entryExists ? "Replacing" : "Adding")} {entryName}" );
                     pak.AddFile( entryName, filePath, ConflictPolicy.Replace );
 
                     Console.WriteLine( "Saving..." );
@@ -271,5 +278,17 @@ namespace PAKPack
 
             return true;
         }
+
+        public abstract bool Execute( string[] args );
+    }
+
+    internal class ReplaceCommand : AddOrReplaceCommand
+    {
+        public override bool Execute( string[] args ) => Execute( args, false );
+    }
+
+    internal class AddCommand : AddOrReplaceCommand
+    {
+        public override bool Execute( string[] args ) => Execute( args, true );
     }
 }
