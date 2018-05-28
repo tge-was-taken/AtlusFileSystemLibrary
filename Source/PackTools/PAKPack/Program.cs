@@ -177,7 +177,8 @@ namespace PAKPack
 
                 foreach ( string file in pak.EnumerateFiles() )
                 {
-                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + file ) )
+                    var normalizedFilePath = file.Replace( "../", "" ); // Remove backwards relative path
+                    using ( var stream = FileUtils.Create( outputPath + Path.DirectorySeparatorChar + normalizedFilePath ) )
                     using ( var inputStream = pak.OpenFile( file ) )
                     {
                         Console.WriteLine( $"Extracting {file}" );
@@ -301,7 +302,7 @@ namespace PAKPack
     {
         public bool Execute( string[] args )
         {
-            if ( args.Length < 1 )
+            if ( args.Length < 2 )
             {
                 Console.WriteLine( "Expected 1 argument." );
                 return false;
