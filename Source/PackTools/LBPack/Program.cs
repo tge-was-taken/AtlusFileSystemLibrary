@@ -22,18 +22,18 @@ namespace LBPack
 
     internal class LBPackTool : PackToolBase
     {
-        public override string Usage => "LBPack 1.0 - An LB pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "LBPack 1.1 - An LB pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
                                         "  LBPack <command>\n" +
                                         "\n" +
                                         "Commands:\n" +
                                         "\n" +
-                                        "    pack        Packs the given input into an ACX file and outputs it to the specified output path.\n" +
+                                        "    pack        Packs the given input into an LB file and outputs it to the specified output path.\n" +
                                         "        Usage:\n" +
                                         "            pack <input directory path> <format> [output file path]\n" +
                                         "\n" +
-                                        "    unpack      Unpacks the given input ACX file and outputs it to the specified output directory.\n" +
+                                        "    unpack      Unpacks the given input LB file and outputs it to the specified output directory.\n" +
                                         "        Usage:\n" +
                                         "            unpack <input file path> [output directory path]\n" +
                                         "\n" +
