@@ -14,7 +14,8 @@ namespace PAKPack
             { "pack", new PackCommand() },
             { "unpack", new UnpackCommand() },
             { "replace", new ReplaceCommand() },
-            { "add", new AddCommand() }
+            { "add", new AddCommand() },
+            { "list", new ListCommand() }
         };
 
         public static IReadOnlyDictionary< string, FormatVersion > FormatsByName { get; } = new Dictionary< string, FormatVersion >
@@ -26,7 +27,7 @@ namespace PAKPack
             { "v3be", FormatVersion.Version3BE }
         };
 
-        public static IReadOnlyDictionary<FormatVersion, string> NameToFormat { get; } = new Dictionary<FormatVersion, string>
+        public static IReadOnlyDictionary<FormatVersion, string> FormatVersionEnumToString { get; } = new Dictionary<FormatVersion, string>
         {
             { FormatVersion.Version1, "v1"},
             { FormatVersion.Version2, "v2" },
@@ -39,7 +40,7 @@ namespace PAKPack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "PAKPack 1.1 - A PAK pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "PAKPack 1.2 - A PAK pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  PAKPack <command>\n" +
@@ -63,6 +64,10 @@ namespace PAKPack
                                    "        Usage:\n" +
                                    "            add <input pak file path> <file name to add/replace> <file path> [output file path]\n" +
                                    "            add <input pak file path> <path to file directory> [output file path]\n" +
+                                   "\n" +
+                                   "    list        Lists the files contained in the pak file\n" +
+                                   "        Usage:\n" +
+                                   "            list <input pak file path>\n" +
                                    "\n" );
                 return;
             }
@@ -168,7 +173,7 @@ namespace PAKPack
 
             using ( pak )
             {
-                Console.WriteLine( $"PAK format version: {Program.NameToFormat[pak.Version]}" );
+                Console.WriteLine( $"PAK format version: {Program.FormatVersionEnumToString[pak.Version]}" );
 
                 foreach ( string file in pak.EnumerateFiles() )
                 {
@@ -290,5 +295,40 @@ namespace PAKPack
     internal class AddCommand : AddOrReplaceCommand
     {
         public override bool Execute( string[] args ) => Execute( args, true );
+    }
+
+    internal class ListCommand : ICommand
+    {
+        public bool Execute( string[] args )
+        {
+            if ( args.Length < 1 )
+            {
+                Console.WriteLine( "Expected 1 argument." );
+                return false;
+            }
+
+            var inputPath = args[1];
+            if ( !File.Exists( inputPath ) )
+            {
+                Console.WriteLine( "Input file doesn't exist." );
+                return false;
+            }
+
+            if ( !PAKFileSystem.TryOpen( inputPath, out var pak ) )
+            {
+                Console.WriteLine( "Invalid PAK file." );
+                return false;
+            }
+
+            using ( pak )
+            {
+                Console.WriteLine( $"PAK format version: {Program.FormatVersionEnumToString[pak.Version]}" );
+
+                foreach ( string file in pak.EnumerateFiles() )
+                    Console.WriteLine( file );
+            }
+
+            return true;
+        }
     }
 }
