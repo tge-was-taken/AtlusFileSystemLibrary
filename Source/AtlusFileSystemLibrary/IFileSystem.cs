@@ -22,7 +22,7 @@ namespace AtlusFileSystemLibrary
 
         void Save( Stream stream );
 
-        FileStream<THandle> OpenFile( THandle handle );
+        FileStream<THandle> OpenFile( THandle handle, FileAccess access = FileAccess.Read );
 
         // Stats
         bool Exists( THandle handle );

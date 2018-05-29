@@ -67,6 +67,7 @@
     <Compile Include="FileSystems\DDS3\FileEntry.cs" />
     <Compile Include="FileSystems\DDS3\MemoryFileEntry.cs" />
     <Compile Include="FileSystems\DDS3\StoredFileEntry.cs" />
+    <Compile Include="FileSystems\Host\HostFileSystem.cs" />
     <Compile Include="FileSystems\LB\Entry.cs" />
     <Compile Include="FileSystems\LB\EntryInfo.cs" />
     <Compile Include="FileSystems\LB\LBFileSystem.cs" />

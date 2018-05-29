@@ -121,6 +121,18 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
             throw new NotSupportedException( "This filesystem does not support directories" );
         }
 
+        public FileStream<int> OpenFile( int handle, FileAccess access = FileAccess.Read )
+        {
+            if ( !Exists( handle ) )
+                throw new FileNotFoundException<int>( handle );
+
+            var entry = mEntryMap[handle];
+            if ( entry == null )
+                throw new FileNotFoundException<int>( handle );
+
+            return new FileStream<int>( handle, entry.GetStream() );
+        }
+
         public bool Exists( int handle )
         {
             return mEntryMap.ContainsKey( handle );
@@ -180,18 +192,6 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
         public void Load( Stream stream, bool ownsStream )
         {
             throw new NotSupportedException( "This filesystem does not support being loaded from a stream" );
-        }
-
-        public FileStream<int> OpenFile( int handle )
-        {
-            if ( !Exists( handle ) )
-                throw new FileNotFoundException< int >( handle );
-
-            var entry = mEntryMap[ handle ];
-            if ( entry == null )
-                throw new FileNotFoundException< int >( handle );
-
-            return new FileStream< int >( handle, entry.GetStream() );
         }
 
         public void Save( string outPath )

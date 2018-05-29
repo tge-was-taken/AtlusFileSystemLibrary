@@ -161,6 +161,12 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
             throw new NotSupportedException( "This filesystem does not support directories" );
         }
 
+        public FileStream<int> OpenFile( int handle, FileAccess access = FileAccess.Read )
+        {
+            var entry = FindEntry( handle );
+            return new FileStream<int>( handle, entry.GetStream() );
+        }
+
         public bool Exists( int handle )
         {
             return mEntryMap.ContainsKey( handle );
@@ -219,12 +225,6 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                     reader.Position = AlignmentUtils.Align( reader.Position, 64 );
                 }
             }
-        }
-
-        public FileStream<int> OpenFile( int handle )
-        {
-            var entry = FindEntry( handle );
-            return new FileStream< int >( handle, entry.GetStream() );
         }
 
         public Stream OpenFile( string extension )

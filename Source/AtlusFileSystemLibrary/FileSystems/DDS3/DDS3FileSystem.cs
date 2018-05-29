@@ -222,6 +222,16 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             }
         }
 
+        public FileStream<string> OpenFile( string handle, FileAccess access = FileAccess.Read )
+        {
+            if ( !TryFindFile( handle, out var file ) )
+            {
+                throw new FileNotFoundException( "The specified file does not exist", handle );
+            }
+
+            return new FileStream<string>( handle, file.GetStream() );
+        }
+
         public bool Exists( string handle )
         {
             return TryFindEntry( handle, out _ );
@@ -235,16 +245,6 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
         public bool IsDirectory( string handle )
         {
             return TryFindDirectory( handle, out _ );
-        }
-
-        public FileStream<string> OpenFile( string handle )
-        {
-            if ( !TryFindFile( handle, out var file ) )
-            {
-                throw new FileNotFoundException( "The specified file does not exist", handle );
-            }
-
-            return new FileStream< string >( handle, file.GetStream() );
         }
 
         public void Save( string outPath )

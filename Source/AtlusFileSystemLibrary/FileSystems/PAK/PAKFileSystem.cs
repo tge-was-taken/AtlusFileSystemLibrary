@@ -330,10 +330,10 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
             return entry;
         }
 
-        public FileStream<string> OpenFile( string handle )
+        public FileStream<string> OpenFile( string handle, FileAccess access = FileAccess.Read )
         {
             var entry = FindEntry( handle );
-            return new FileStream< string >( handle, entry.GetStream() );
+            return new FileStream<string>( handle, entry.GetStream() );
         }
 
         public bool Exists( string handle )
