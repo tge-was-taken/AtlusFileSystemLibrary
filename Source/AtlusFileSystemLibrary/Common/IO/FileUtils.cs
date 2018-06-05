@@ -42,7 +42,7 @@ namespace AtlusFileSystemLibrary.Common.IO
     {
         public string DestinationPath { get; }
 
-        public ReplacingOriginalFileWorkaroundFileStream( string path, string destinationPath ) : base( path, FileMode.OpenOrCreate)
+        public ReplacingOriginalFileWorkaroundFileStream( string path, string destinationPath ) : base( path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Delete | FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose )
         {
             DestinationPath = destinationPath;
         }
