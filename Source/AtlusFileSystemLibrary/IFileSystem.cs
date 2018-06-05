@@ -12,6 +12,7 @@ namespace AtlusFileSystemLibrary
         bool HasDirectories { get; }
         bool CanSave { get; }
         bool CanAddOrRemoveEntries { get; }
+        string FilePath { get; }
 
         // Load/Save
         void Load( string path );

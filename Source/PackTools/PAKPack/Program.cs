@@ -40,7 +40,7 @@ namespace PAKPack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "PAKPack 1.2 - A PAK pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "PAKPack 1.3 - A PAK pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  PAKPack <command>\n" +
@@ -214,8 +214,7 @@ namespace PAKPack
                 return false;
             }
 
-            string outputPath = Path.GetRandomFileName();
-            bool replaceInput = true;
+            string outputPath = inputPath;
 
             if ( Directory.Exists( args[2] ) )
             {
@@ -224,14 +223,13 @@ namespace PAKPack
                 if ( args.Length > 3 )
                 {
                     outputPath = args[3];
-                    replaceInput = false;
                 }
 
                 using ( pak )
                 {
                     foreach ( string file in Directory.EnumerateFiles( directoryPath, "*.*", SearchOption.AllDirectories ) )
                     {
-                        Console.WriteLine( $"Adding/Replacing {file}" );
+                        Console.WriteLine( $"{( pak.Exists(file) ? "Replacing" : "Adding" )} {file}" );
                         pak.AddFile( file.Substring( directoryPath.Length )
                                          .Trim( Path.DirectorySeparatorChar )
                                          .Replace( "\\", "/" ),
@@ -247,7 +245,6 @@ namespace PAKPack
                 if ( args.Length > 4 )
                 {
                     outputPath = args[4];
-                    replaceInput = false;
                 }
 
                 using ( pak )
@@ -274,12 +271,6 @@ namespace PAKPack
                     Console.WriteLine( "Saving..." );
                     pak.Save( outputPath );
                 }
-            }
-
-            if ( replaceInput )
-            {
-                File.Copy( outputPath, inputPath, true );
-                File.Delete( outputPath );
             }
 
             return true;

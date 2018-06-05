@@ -22,7 +22,7 @@ namespace LBPack
 
     internal class LBPackTool : PackToolBase
     {
-        public override string Usage => "LBPack 1.1 - An LB pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "LBPack 1.2 - An LB pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
                                         "  LBPack <command>\n" +
@@ -194,8 +194,7 @@ namespace LBPack
                 return false;
             }
 
-            string outputPath = Path.GetRandomFileName();
-            bool replaceInput = true;
+            string outputPath = inputPath;
 
             if ( Directory.Exists( args[1] ) )
             {
@@ -204,7 +203,6 @@ namespace LBPack
                 if ( args.Length > 2 )
                 {
                     outputPath = args[2];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -244,7 +242,6 @@ namespace LBPack
                 if ( args.Length > 3 )
                 {
                     outputPath = args[3];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -267,19 +264,13 @@ namespace LBPack
                             return false;
                         }
 
-                        Console.WriteLine( $"Adding/Replacing file: {filePath}" );
+                        Console.WriteLine( $"Replacing file: {filePath}" );
                         fs.AddFile( handle, filePath, ConflictPolicy.Replace );
 
                         Console.WriteLine( "Saving..." );
                         fs.Save( outputPath );
                     }
                 }
-            }
-
-            if ( replaceInput )
-            {
-                File.Copy( outputPath, inputPath, true );
-                File.Delete( outputPath );
             }
 
             return true;

@@ -22,6 +22,8 @@ namespace AtlusFileSystemLibrary.FileSystems.Host
 
         public bool CanAddOrRemoveEntries => true;
 
+        public string FilePath { get; private set; }
+
         public HostFileSystem()
         {
         }

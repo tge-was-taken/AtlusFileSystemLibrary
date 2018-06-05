@@ -19,7 +19,7 @@ namespace SMT1Pack
 
     internal class SMT1PackTool : PackToolBase
     {
-        public override string Usage => "SMT1Pack 1.0 - An SMT1 DATA.BIN pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "SMT1Pack 1.1 - An SMT1 DATA.BIN pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
                                         "  SMT1Pack <command>\n" +
@@ -198,8 +198,7 @@ namespace SMT1Pack
                 return false;
             }
 
-            string outputPath = Path.GetRandomFileName();
-            bool replaceInput = true;
+            string outputPath = inputPath;
 
             if ( Directory.Exists( args[1] ) )
             {
@@ -208,7 +207,6 @@ namespace SMT1Pack
                 if ( args.Length > 2 )
                 {
                     outputPath = args[2];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -237,7 +235,6 @@ namespace SMT1Pack
                 if ( args.Length > 3 )
                 {
                     outputPath = args[3];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -259,7 +256,7 @@ namespace SMT1Pack
                             return false;
                         }
 
-                        Console.WriteLine( $"Adding/Replacing file: {filePath}" );
+                        Console.WriteLine( $"Replacing file: {filePath}" );
                         fs.AddFile( handle, filePath, ConflictPolicy.Replace );
 
                         Console.WriteLine( "Saving..." );
@@ -271,12 +268,6 @@ namespace SMT1Pack
                         return false;
                     }
                 }
-            }
-
-            if ( replaceInput )
-            {
-                File.Copy( outputPath, inputPath, true );
-                File.Delete( outputPath );
             }
 
             return true;

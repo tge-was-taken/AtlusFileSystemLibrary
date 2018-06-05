@@ -27,6 +27,8 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
             bool success = TryOpen( stream, true, out archive );
             if ( !success )
                 stream.Dispose();
+            else
+                archive.FilePath = filepath;
 
             return success;
         }
@@ -170,6 +172,8 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
         public bool CanAddOrRemoveEntries { get; } = true;
 
+        public string FilePath { get; private set; }
+
         public FormatVersion Version { get; private set; }
 
         public PAKFileSystem()
@@ -194,6 +198,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
         // INamedFileSystem implementation
         public void Load( string path )
         {
+            FilePath = path;
             Load( File.OpenRead( path ), true );
         }
 
@@ -428,8 +433,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
         public void Save( string outPath )
         {
-            using ( var stream = FileUtils.Create( outPath ) )
-                Save( stream );
+            FileSystemUtils.Save( this, outPath );
         }
 
         public void Save( Stream stream )

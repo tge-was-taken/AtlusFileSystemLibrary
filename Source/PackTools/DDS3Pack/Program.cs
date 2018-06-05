@@ -20,7 +20,7 @@ namespace DDS3Pack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "DDS3Pack 1.2 - A DDS3 img/ddt pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "DDS3Pack 1.3 - A DDS3 img/ddt pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  DDS3Pack <command>\n" +
@@ -188,8 +188,7 @@ namespace DDS3Pack
                 return false;
             }
 
-            string outputPath = Path.GetRandomFileName();
-            bool replaceInput = true;
+            string outputPath = inputPath;
 
             if ( Directory.Exists( args[2] ) )
             {
@@ -198,7 +197,6 @@ namespace DDS3Pack
                 if ( args.Length > 3 )
                 {
                     outputPath = args[3];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -209,7 +207,8 @@ namespace DDS3Pack
                                            .Trim( Path.DirectorySeparatorChar )
                                            .Replace( "\\", "/" );
 
-                        Console.WriteLine( $"Adding/Replacing file: {filePath}" );
+                        bool exists = fs.Exists( filePath );
+                        Console.WriteLine( $"{(exists? "Replacing" : "Adding")} file: {filePath}" );
 
                         fs.AddFile( filePath, file, ConflictPolicy.Replace );
                     }
@@ -223,7 +222,6 @@ namespace DDS3Pack
                 if ( args.Length > 4 )
                 {
                     outputPath = args[4];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -243,27 +241,12 @@ namespace DDS3Pack
                         return false;
                     }
 
-                    Console.WriteLine( $"Adding/Replacing file: {filePath}" );
+                    Console.WriteLine( $"Replacing file: {filePath}" );
                     fs.AddFile( entryName, filePath, ConflictPolicy.Replace );
 
                     Console.WriteLine( "Saving ddt/img..." );
                     fs.Save( outputPath );
                 }
-            }
-
-            if ( replaceInput )
-            {
-                var ddtPath = Path.ChangeExtension( outputPath, "ddt" );
-                var imgPath = Path.ChangeExtension( outputPath, "img" );
-
-                var inDdtPath = Path.ChangeExtension( inputPath, "ddt" );
-                var inImgPath = Path.ChangeExtension( inputPath, "img" );
-
-                File.Copy( ddtPath, inDdtPath, true );
-                File.Delete( ddtPath );
-
-                File.Copy( imgPath, inImgPath, true );
-                File.Delete( imgPath );
             }
 
             return true;

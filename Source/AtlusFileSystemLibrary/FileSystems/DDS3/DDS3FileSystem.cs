@@ -28,6 +28,8 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
 
         public bool CanAddOrRemoveEntries { get; } = true;
 
+        public string FilePath { get; private set; }
+
         public DDS3FileSystem()
         {
             mRoot = new DirectoryEntry( null, "", uint.MaxValue );
@@ -54,6 +56,7 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
                 throw new ArgumentException( "No IMG file found." );
             }
 
+            FilePath = imgPath;
             mImgStream = File.OpenRead( imgPath );
             using ( var reader = new BinaryReader( File.OpenRead( ddtPath ) ) )
             {
@@ -253,12 +256,18 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
             string imgPath = Path.ChangeExtension( outPath, "img" );
 
             using ( var ddtWriter = new EndianBinaryWriter( FileUtils.Create( ddtPath ), Endianness.LittleEndian ) )
-            using ( var imgWriter = new EndianBinaryWriter( FileUtils.Create( imgPath ), Endianness.LittleEndian ) )
+            using ( var imgWriter = new EndianBinaryWriter( FileUtils.Create( imgPath, FilePath ), Endianness.LittleEndian ) )
             {
                 mPostWrites = new LinkedList< Tuple< long, Func< long > > >();
                 WriteEntry( mRoot, ddtWriter, imgWriter );
                 DoPostWrites( ddtWriter );
+
+                // Close backing stream
+                Dispose();
             }
+
+            // Reload
+            Load( outPath );
         }
 
         public Stream Save()

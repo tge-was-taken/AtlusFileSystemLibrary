@@ -23,6 +23,8 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public bool CanAddOrRemoveEntries { get; } = true;
 
+        public string FilePath { get; private set; }
+
         public LBFileSystem()
         {
             mEntryMap = new Dictionary< int, Entry >();
@@ -195,6 +197,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public void Load( string path )
         {
+            FilePath = path;
             Load( File.OpenRead( path ), true );
         }
 
@@ -243,8 +246,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
 
         public void Save( string outPath )
         {
-            using ( var stream = FileUtils.Create( outPath ) )
-                Save( stream );
+            FileSystemUtils.Save( this, outPath );
         }
 
         public Stream Save()

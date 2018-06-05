@@ -27,6 +27,8 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
 
         public int MaxFileCount => FILE_COUNT;
 
+        public string FilePath { get; private set; }
+
         public SMT1FileSystem()
         {
             mEntryMap = new Dictionary< int, IEntry >();
@@ -171,6 +173,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
 
             // Time to start mounting DATA.BIN
             mBaseStream = File.OpenRead( path );
+            FilePath = path;
             mOwnsStream = true;
 
             // Read file offsets
@@ -207,7 +210,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
             if ( elfPath != null && File.Exists( elfPath ) )
             {
                 // Create DATA.BIN & update ELF
-                using ( var binWriter = new EndianBinaryWriter( FileUtils.Create( outPath ), Endianness.LittleEndian ) )
+                using ( var binWriter = new EndianBinaryWriter( FileUtils.Create( outPath, FilePath ), Endianness.LittleEndian ) )
                 using ( var elfWriter = new EndianBinaryWriter( File.OpenWrite( elfPath ), Endianness.LittleEndian ) )
                 {
                     elfWriter.SeekBegin( FILE_OFFSET_LIST_OFFSET );
@@ -227,12 +230,15 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
                     }
 
                     elfWriter.Write( nextOffset );
+
+                    // Close backing stream
+                    Dispose();
                 }
             }
             else
             {
                 // Create just DATA.BIN
-                using ( var binWriter = new EndianBinaryWriter( FileUtils.Create( outPath ), Endianness.LittleEndian ) )
+                using ( var binWriter = new EndianBinaryWriter( FileUtils.Create( outPath, FilePath ), Endianness.LittleEndian ) )
                 {
                     int index = 0;
                     foreach ( var entry in mEntryMap.Values )
@@ -245,8 +251,14 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
 
                         ++index;
                     }
+
+                    // Close backing stream
+                    Dispose();
                 }
             }
+
+            // Reload file
+            Load( outPath );
         }
 
         public void Save( Stream stream )

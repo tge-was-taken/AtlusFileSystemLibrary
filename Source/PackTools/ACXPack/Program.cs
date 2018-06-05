@@ -20,7 +20,7 @@ namespace ACXPack
 
     internal class ACXPackTool : PackToolBase
     {
-        public override string Usage => "ACXPack 1.1 - An ACX pack/unpacker made by TGE (2018)\n" +
+        public override string Usage => "ACXPack 1.2 - An ACX pack/unpacker made by TGE (2018)\n" +
                                         "\n" +
                                         "Usage:\n" +
                                         "  ACXPack <command>\n" +
@@ -37,8 +37,8 @@ namespace ACXPack
                                         "\n" +
                                         "    replace     Replaces the specified file(s) with the contents of the specified input\n" +
                                         "        Usage:\n" +
-                                        "            replace <input pak file path> <file name to replace> <file path> [output file path]\n" +
-                                        "            replace <input pak file path> <path to file directory> [output file path]\n" +
+                                        "            replace <input acx file path> <file name to replace> <file path> [output file path]\n" +
+                                        "            replace <input acx file path> <path to file directory> [output file path]\n" +
                                         "\n";
 
         public override IReadOnlyDictionary< string, ICommand > Commands => new Dictionary< string, ICommand >()
@@ -168,8 +168,7 @@ namespace ACXPack
                 return false;
             }
 
-            string outputPath = Path.GetRandomFileName();
-            bool replaceInput = true;
+            string outputPath = inputPath;
 
             if ( Directory.Exists( args[1] ) )
             {
@@ -178,7 +177,6 @@ namespace ACXPack
                 if ( args.Length > 2 )
                 {
                     outputPath = args[2];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -206,7 +204,6 @@ namespace ACXPack
                 if ( args.Length > 3 )
                 {
                     outputPath = args[3];
-                    replaceInput = false;
                 }
 
                 using ( fs )
@@ -235,12 +232,6 @@ namespace ACXPack
                         fs.Save( outputPath );
                     }
                 }
-            }
-
-            if ( replaceInput )
-            {
-                File.Copy( outputPath, inputPath, true );
-                File.Delete( outputPath );
             }
 
             return true;

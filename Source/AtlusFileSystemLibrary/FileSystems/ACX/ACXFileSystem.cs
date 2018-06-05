@@ -20,6 +20,8 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
         public bool CanSave { get; } = true;
         public bool CanAddOrRemoveEntries { get; } = true;
 
+        public string FilePath { get; private set; }
+
         public int AllocateHandle() => mNextHandle++;
 
         public ACXFileSystem()
@@ -29,6 +31,7 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
 
         public void Load( string path )
         {
+            FilePath = path;
             Load( File.OpenRead( path ), true );
         }
 
@@ -166,8 +169,7 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
 
         public void Save( string outPath )
         {
-            using ( var stream = FileUtils.Create( outPath ) )
-                Save( stream );
+            FileSystemUtils.Save( this, outPath );
         }
 
         [SuppressMessage( "ReSharper", "AccessToDisposedClosure" )]
