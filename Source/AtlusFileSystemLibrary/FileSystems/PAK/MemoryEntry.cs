@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using AtlusFileSystemLibrary.Common.IO;
 
 namespace AtlusFileSystemLibrary.FileSystems.PAK
 {
@@ -20,7 +21,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
         public Stream GetStream()
         {
-            return mStream;
+            return new StreamView( mStream, 0, mStream.Length );
         }
 
         public void Dispose()

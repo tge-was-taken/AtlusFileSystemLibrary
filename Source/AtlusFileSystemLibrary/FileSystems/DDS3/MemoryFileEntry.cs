@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using AtlusFileSystemLibrary.Common.IO;
 
 namespace AtlusFileSystemLibrary.FileSystems.DDS3
 {
@@ -21,7 +22,7 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
 
         public override Stream GetStream()
         {
-            return mStream;
+            return new StreamView( mStream, 0, mStream.Length );
         }
     }
 }

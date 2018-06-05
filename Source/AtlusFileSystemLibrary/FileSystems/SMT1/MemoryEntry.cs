@@ -26,7 +26,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
 
         public Stream GetStream()
         {
-            return mStream;
+            return new StreamView( mStream, 0, mStream.Length );
         }
 
         public void Dispose()

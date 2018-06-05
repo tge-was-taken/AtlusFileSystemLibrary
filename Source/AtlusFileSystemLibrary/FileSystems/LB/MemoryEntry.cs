@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using AtlusFileSystemLibrary.Common.IO;
 using AtlusFileSystemLibrary.Compressions;
 
 namespace AtlusFileSystemLibrary.FileSystems.LB
@@ -31,7 +32,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                 stream = mDecompressedStream;
             }
 
-            return stream;
+            return new StreamView( stream, 0, stream.Length );
         }
 
         public override void Dispose()
