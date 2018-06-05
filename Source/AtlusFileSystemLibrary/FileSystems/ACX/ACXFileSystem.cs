@@ -184,7 +184,7 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
                 {
                     fixups.Add( new Tuple< long, Action >( writer.BaseStream.Position, () =>
                     {
-                        entry.GetStream().CopyTo( writer.BaseStream );
+                        entry.GetStream().FullyCopyTo( writer.BaseStream );
 
                         var padBytes = AlignmentUtils.GetAlignedDifference( writer.BaseStream.Position, 4 );
 

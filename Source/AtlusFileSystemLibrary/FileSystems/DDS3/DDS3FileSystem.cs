@@ -378,7 +378,7 @@ namespace AtlusFileSystemLibrary.FileSystems.DDS3
 
             if ( entry.Kind == FileSystemEntryKind.File )
             {
-                ( ( FileEntry ) entry ).GetStream().CopyTo( imgWriter.BaseStream );
+                ( ( FileEntry ) entry ).GetStream().FullyCopyTo( imgWriter.BaseStream );
                 imgWriter.WriteAlignmentPadding( SECTOR_SIZE );
             }
         }

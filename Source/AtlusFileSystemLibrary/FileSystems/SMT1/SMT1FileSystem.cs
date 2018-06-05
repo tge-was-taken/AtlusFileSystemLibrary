@@ -223,7 +223,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
                             throw new FileNotFoundException<int>( index );
 
                         elfWriter.Write( nextOffset );
-                        entry.GetStream().CopyTo( binWriter.BaseStream );
+                        entry.GetStream().FullyCopyTo( binWriter.BaseStream );
                         binWriter.WriteAlignmentPadding( 2048 );
                         nextOffset = ( int )binWriter.BaseStream.Position;
                         ++index;
@@ -246,7 +246,7 @@ namespace AtlusFileSystemLibrary.FileSystems.SMT1
                         if ( entry == null )
                             throw new FileNotFoundException<int>( index );
 
-                        entry.GetStream().CopyTo( binWriter.BaseStream );
+                        entry.GetStream().FullyCopyTo( binWriter.BaseStream );
                         binWriter.WriteAlignmentPadding( 2048 );
 
                         ++index;

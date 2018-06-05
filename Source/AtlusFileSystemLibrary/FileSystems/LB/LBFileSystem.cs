@@ -268,7 +268,7 @@ namespace AtlusFileSystemLibrary.FileSystems.LB
                     writer.Write( entry.Length + 16 );
                     writer.Write( entry.Extension, StringBinaryFormat.FixedLength, 4 );
                     writer.Write( entry.DecompressedLength );
-                    entry.GetStream( false ).CopyTo( writer.BaseStream );
+                    entry.GetStream( false ).FullyCopyTo( writer.BaseStream );
                     writer.WriteAlignmentPadding( 64 );
                 }
 

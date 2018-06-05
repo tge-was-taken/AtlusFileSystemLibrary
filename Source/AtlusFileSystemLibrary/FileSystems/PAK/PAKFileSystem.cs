@@ -478,7 +478,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
                     // write data
                     var dataStream = entry.GetStream();
-                    dataStream.CopyTo( writer.BaseStream );
+                    dataStream.FullyCopyTo( writer.BaseStream );
 
                     switch ( Version )
                     {
