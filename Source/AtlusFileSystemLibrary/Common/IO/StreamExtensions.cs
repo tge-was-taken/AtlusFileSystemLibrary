@@ -7,7 +7,7 @@ namespace AtlusFileSystemLibrary.Common.IO
         public static void FullyCopyTo( this Stream @this, Stream stream )
         {
             @this.Position = 0;
-            stream.CopyTo( stream );
+            @this.CopyTo( stream );
         }
     }
 }
