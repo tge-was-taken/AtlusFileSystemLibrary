@@ -17,7 +17,7 @@ namespace AtlusFileSystemLibrary.Common.IO
             if ( source == null )
                 throw new ArgumentNullException( nameof( source ) );
 
-            if ( position < 0 || position >= source.Length || ( position + length ) > source.Length )
+            if ( position < 0 || position > source.Length || ( position + length ) > source.Length )
                 throw new ArgumentOutOfRangeException( nameof( position ) );
 
             if ( length < 0 )
