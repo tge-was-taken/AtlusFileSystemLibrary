@@ -40,7 +40,7 @@ namespace PAKPack
         {
             if ( args.Length == 0 )
             {
-                Console.WriteLine( "PAKPack 1.3 - A PAK pack/unpacker made by TGE (2018)\n" +
+                Console.WriteLine( "PAKPack 1.4 - A PAK pack/unpacker made by TGE (2018)\n" +
                                    "\n" +
                                    "Usage:\n" +
                                    "  PAKPack <command>\n" +

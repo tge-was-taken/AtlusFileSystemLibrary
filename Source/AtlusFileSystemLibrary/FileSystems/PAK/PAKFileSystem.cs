@@ -473,8 +473,17 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                         writer.Write( b );
                     }
 
+                    var entryLength = entry.Length;
+                    var paddingByteCount = 0;
+
+                    if ( Version != FormatVersion.Version1 )
+                    {
+                        paddingByteCount = AlignmentUtils.GetAlignedDifference( entry.Length, 16 );
+                        entryLength += paddingByteCount;
+                    }
+
                     // write entry length
-                    writer.Write( entry.Length );
+                    writer.Write( entryLength );
 
                     // write data
                     var dataStream = entry.GetStream();
@@ -484,15 +493,19 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                     {
                         case FormatVersion.Version1:
                             {
-                                int paddingByteCount = AlignmentUtils.GetAlignedDifference( writer.BaseStream.Position, 64 );
+                                paddingByteCount = AlignmentUtils.GetAlignedDifference( writer.BaseStream.Position, 64 );
                                 for ( int i = 0; i < paddingByteCount; i++ )
-                                    writer.Write( ( byte ) 0 );
+                                    writer.Write( ( byte )0 );
                             }
                             break;
                         case FormatVersion.Version2:
                         case FormatVersion.Version2BE:
                         case FormatVersion.Version3:
                         case FormatVersion.Version3BE:
+                            {
+                                for ( int i = 0; i < paddingByteCount; i++ )
+                                    writer.Write( ( byte )0x37 );
+                            }
                             break;
                         default:
                             throw new NotImplementedException( "Invalid format version" );
