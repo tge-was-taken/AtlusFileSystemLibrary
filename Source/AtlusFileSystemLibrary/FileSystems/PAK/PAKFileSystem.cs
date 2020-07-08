@@ -478,7 +478,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
                     if ( Version != FormatVersion.Version1 )
                     {
-                        paddingByteCount = AlignmentUtils.GetAlignedDifference( entry.Length, 16 );
+                        paddingByteCount = AlignmentUtils.GetAlignedDifference( entry.Length, 32 );
                         entryLength += paddingByteCount;
                     }
 
@@ -504,7 +504,7 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
                         case FormatVersion.Version3BE:
                             {
                                 for ( int i = 0; i < paddingByteCount; i++ )
-                                    writer.Write( ( byte )0x37 );
+                                    writer.Write( ( byte )0 );
                             }
                             break;
                         default:

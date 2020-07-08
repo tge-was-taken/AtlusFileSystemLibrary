@@ -23,7 +23,7 @@ namespace AtlusFileSystemLibrary.Common.IO
             var fullPath = Path.GetFullPath( path );
             var fullOriginalPath = originalPath != null ? Path.GetFullPath( originalPath ) : string.Empty;
 
-            if ( fullPath.Equals( fullOriginalPath, StringComparison.CurrentCulture ) )
+            if ( fullPath.Equals( fullOriginalPath, StringComparison.InvariantCultureIgnoreCase ) )
             {
                 var effectivePath = fullPath;
                 while ( File.Exists( effectivePath ) )
