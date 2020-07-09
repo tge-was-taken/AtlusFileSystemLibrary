@@ -82,7 +82,6 @@
     <Compile Include="FileSystems\APAK\IEntry.cs" />
     <Compile Include="FileSystems\APAK\MemoryEntry.cs" />
     <Compile Include="FileSystems\APAK\StoredEntry.cs" />
-    <Compile Include="FileSystemUtils.cs" />
     <Compile Include="FileSystems\ACX\ACXFileSystem.cs" />
     <Compile Include="FileSystems\ACX\Entry.cs" />
     <Compile Include="FileSystems\ACX\MemoryEntry.cs" />

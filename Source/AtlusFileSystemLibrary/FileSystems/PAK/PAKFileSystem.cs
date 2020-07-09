@@ -433,7 +433,8 @@ namespace AtlusFileSystemLibrary.FileSystems.PAK
 
         public void Save( string outPath )
         {
-            FileSystemUtils.Save( this, outPath );
+            using ( var fileStream = File.Create( outPath ) )
+                Save( fileStream );
         }
 
         public void Save( Stream stream )

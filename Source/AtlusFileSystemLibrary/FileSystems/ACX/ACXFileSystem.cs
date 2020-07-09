@@ -169,7 +169,8 @@ namespace AtlusFileSystemLibrary.FileSystems.ACX
 
         public void Save( string outPath )
         {
-            FileSystemUtils.Save( this, outPath );
+            using ( var fileStream = File.Create( outPath ) )
+                Save( fileStream );
         }
 
         [SuppressMessage( "ReSharper", "AccessToDisposedClosure" )]
